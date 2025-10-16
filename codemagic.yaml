@@ -1,0 +1,23 @@
+workflows:
+  flutter-app:
+    name: Build Flutter App for iOS & Android
+    environment:
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Install dependencies
+        script: |
+          flutter pub get
+      - name: Build Android APK
+        script: |
+          flutter build apk --debug
+      - name: Build iOS Simulator
+        script: |
+          flutter build ios --debug --simulator
+    artifacts:
+      - build/app/outputs/flutter-apk/app-debug.apk
+      - build/ios/iphonesimulator/*.app
+    publishing:
+      email:
+        recipients:
+          - globaldigitalsolutions0@gmail.com
