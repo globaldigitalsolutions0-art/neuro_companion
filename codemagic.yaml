@@ -5,6 +5,10 @@ workflows:
       flutter: stable
       xcode: latest
     scripts:
+      - name: Clean project
+        script: |
+          flutter clean
+          rm -rf ~/.gradle
       - name: Install dependencies
         script: |
           flutter pub get
@@ -17,7 +21,3 @@ workflows:
     artifacts:
       - build/app/outputs/flutter-apk/app-debug.apk
       - build/ios/iphonesimulator/*.app
-    publishing:
-      email:
-        recipients:
-          - globaldigitalsolutions0@gmail.com
