@@ -12,12 +12,16 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
-      - name: Build Android APK
+      - name: Build Android APK (release)
         script: |
-          flutter build apk --debug
-      - name: Build iOS Simulator
+          flutter build apk --release
+      - name: Build iOS (release)
         script: |
-          flutter build ios --debug --simulator
+          flutter build ipa --release --no-codesign
     artifacts:
-      - build/app/outputs/flutter-apk/app-debug.apk
-      - build/ios/iphonesimulator/*.app
+      - build/app/outputs/flutter-apk/app-release.apk
+      - build/ios/ipa/*.ipa
+    publishing:
+      email:
+        recipients:
+          - saqlainsqqi@gmail.com
