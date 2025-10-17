@@ -5,7 +5,7 @@ workflows:
       flutter: stable
       xcode: latest
       groups:
-        - appetize  # 👈 create this group in Codemagic and add your APPETIZE_API_TOKEN inside it
+        - appetize  # 👈 Create this group in Codemagic and add APPETIZE_API_TOKEN
     scripts:
       - name: Clean project
         script: |
@@ -20,19 +20,27 @@ workflows:
         script: |
           flutter build apk --release
 
-      - name: Build iOS (for simulator)
+      - name: Build iOS (for simulator debug)
         script: |
-          flutter build ios --simulator --release
+          flutter build ios --simulator --debug
+          mkdir -p build/ios
           cd build/ios/iphonesimulator
           zip -r ../../Runner.app.zip Runner.app
 
       - name: Upload to Appetize.io
         script: |
-          echo "Uploading to Appetize.io..."
-          curl https://api.appetize.io/v1/apps \
+          echo "📤 Uploading iOS build to Appetize.io..."
+          RESPONSE=$(curl -s https://api.appetize.io/v1/apps \
             -F "file=@build/ios/Runner.app.zip" \
             -F "platform=ios" \
-            -H "Authorization: Bearer $APPETIZE_API_TOKEN"
+            -H "Authorization: Bearer $APPETIZE_API_TOKEN")
+
+          echo "✅ Upload complete!"
+          echo "🔗 Appetize public URL:"
+          echo "$RESPONSE" | grep -o '"publicURL":"[^"]*"' | cut -d '"' -f4
+          
+          echo ""
+          echo "You can open the link above to test your iOS app online (no Mac required)."
 
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
