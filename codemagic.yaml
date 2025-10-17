@@ -1,26 +1,43 @@
 workflows:
   flutter-app:
-    name: Build Flutter App for iOS & Android
+    name: Build Flutter App for iOS & Android and Upload to Appetize
     environment:
       flutter: stable
       xcode: latest
+      groups:
+        - appetize  # 👈 create this group in Codemagic and add your APPETIZE_API_TOKEN inside it
     scripts:
       - name: Clean project
         script: |
           flutter clean
           rm -rf ~/.gradle
+
       - name: Install dependencies
         script: |
           flutter pub get
+
       - name: Build Android APK (release)
         script: |
           flutter build apk --release
-      - name: Build iOS (release)
+
+      - name: Build iOS (for simulator)
         script: |
-          flutter build ipa --release --no-codesign
+          flutter build ios --simulator --release
+          cd build/ios/iphonesimulator
+          zip -r ../../Runner.app.zip Runner.app
+
+      - name: Upload to Appetize.io
+        script: |
+          echo "Uploading to Appetize.io..."
+          curl https://api.appetize.io/v1/apps \
+            -F "file=@build/ios/Runner.app.zip" \
+            -F "platform=ios" \
+            -H "Authorization: Bearer $APPETIZE_API_TOKEN"
+
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
-      - build/ios/ipa/*.ipa
+      - build/ios/Runner.app.zip
+
     publishing:
       email:
         recipients:
